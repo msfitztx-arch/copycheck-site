@@ -21,7 +21,7 @@ nav{display:flex;gap:22px;font-size:12px;flex-wrap:wrap}nav a{text-decoration:no
 .intro h1 em{color:var(--rust);font-style:italic}
 .intro p{color:var(--muted);font-size:17px;max-width:680px}
 
-.checker{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr);gap:24px;align-items:start;padding-bottom:40px}
+.checker{display:grid;grid-template-columns:minmax(0,3fr) minmax(280px,1fr);gap:24px;align-items:start;padding-bottom:40px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
 .results-panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}
 .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
