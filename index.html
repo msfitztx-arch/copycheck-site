@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copy Check · KHS Press yearbook copy checker</title>
+<meta name="description" content="Paste a yearbook story or captions and get first-pass flags for grammar, staff style, caption format and LQTQ structure. Runs entirely in your browser.">
+<link rel="icon" href="/icon-32.png">
+<link rel="stylesheet" href="/styles.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+<header class="site">
+ <a class="brand" href="/" aria-label="Copy Check home"><img src="/icon-128.png" alt=""><span>COPY CHECK<small>BY KHS PRESS</small></span></a>
+ <nav aria-label="Sections"><a href="#checker">Checker</a><a href="#guide">How it works</a><a href="#rules">Rules</a><a href="#captions">Captions</a><a href="/privacy.html">Privacy</a></nav>
+</header>
+
+<main id="main">
+<section class="intro">
+ <div class="eyebrow">BEFORE THE FINAL PROOF</div>
+ <h1>A closer look. <em>Your own edits.</em></h1>
+ <p>Paste a story or a page of captions. Copy Check flags common grammar slips, 2027 staff-style conflicts, caption-format gaps and LQTQ structure, and points to the exact passage and the rule behind each flag. It never rewrites your copy.</p>
+</section>
+
+<section id="checker" class="checker" aria-label="Copy checker">
+ <div class="panel input-panel">
+  <div class="controls">
+   <div>
+    <label class="field-label" for="mode">COPY TYPE</label>
+    <select id="mode">
+     <option value="story">Story · LQTQ</option>
+     <option value="caption">Captions</option>
+    </select>
+   </div>
+   <div class="caption-only" hidden>
+    <label class="field-label" for="caption-format">DEFAULT CAPTION STYLE</label>
+    <select id="caption-format"></select>
+   </div>
+   <div class="caption-only" hidden>
+    <label class="field-label" for="caption-layout">CAPTION BLOCKS</label>
+    <select id="caption-layout">
+     <option value="paragraph">Each paragraph is one caption</option>
+     <option value="blank">Blank line separates captions</option>
+    </select>
+   </div>
+  </div>
+
+  <div class="editor-bar">
+   <label class="field-label" for="editor" id="editor-label">YOUR COPY</label>
+   <div class="editor-tools">
+    <button type="button" class="ghost" id="sample">Load example</button>
+    <button type="button" class="ghost" id="clear">Clear</button>
+   </div>
+  </div>
+  <div id="editor" class="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="editor-label" aria-describedby="editor-help" spellcheck="true" data-placeholder="Paste your story or captions here. Formatting such as bold caption lead-ins is kept when you paste from Google Docs or Word."></div>
+  <p class="note" id="editor-help"><span id="counter">0 words</span> · Each paragraph (press Enter) is checked as its own paragraph. Bold formatting is kept when you paste, so the checker can see bold caption lead-ins.</p>
+
+  <details class="settings">
+   <summary>Check settings &amp; name context</summary>
+   <label class="row"><input id="headings" type="checkbox"> <span>Include headings and titles</span></label>
+   <label class="row"><input id="tables" type="checkbox"> <span>Include text pasted from tables</span></label>
+   <label class="field-label" for="people">OPTIONAL VERIFIED NAME CONTEXT</label>
+   <textarea id="people" rows="4" maxlength="10000" placeholder="student | Maya Chen | 12&#10;adult | Paul Reyes | band director"></textarea>
+   <p>One person per line: <code>role | full name | grade or adult title</code>. Role is <code>student</code> (grade 9–12) or <code>adult</code>. With this list, the checker can compare first references, grades and later references against names you've verified. It isn't connected to Skyward or any directory, and nothing is saved.</p>
+  </details>
+
+  <button class="primary" id="check" type="button">Check my copy ↗</button>
+  <p class="note">Checking happens on this page in your browser. Your copy isn't uploaded, saved or sent to an AI service.</p>
+ </div>
+
+ <div class="panel results-panel" aria-live="polite">
+  <div id="status" class="status" role="status" hidden></div>
+  <div id="empty" class="empty">
+   <div class="meta"><span>AT THE COPY DESK</span><span>FIRST PASS</span></div>
+   <h2>Error flags only.<br>No rewrites.</h2>
+   <p>Run a check to see each flagged passage, where it is, and the rule it concerns. Select <strong>Show in text</strong> to jump to the passage in your copy.</p>
+  </div>
+  <section id="results" hidden aria-label="Check results">
+   <div class="summary" id="summary"></div>
+   <div class="tabs" role="tablist" aria-label="Result views">
+    <button id="flags-tab" data-tab="flags" role="tab" aria-selected="true" aria-controls="flags-panel">Flagged passages</button>
+    <button id="map-tab" data-tab="map" role="tab" aria-selected="false" aria-controls="map-panel" tabindex="-1">LQTQ map</button>
+   </div>
+   <div id="flags-panel" role="tabpanel" aria-labelledby="flags-tab">
+    <label class="sr-only" for="filter">Filter flags</label>
+    <div class="filter"><select id="filter">
+     <option value="all">All flagged passages</option>
+     <option value="grammar">Grammar</option>
+     <option value="house">Staff style</option>
+     <option value="structure">LQTQ</option>
+     <option value="caption">Caption format</option>
+     <option value="verify">Reference verification</option>
+     <option value="quotes">Inside quotation marks</option>
+    </select></div>
+    <div id="flags-list"></div>
+   </div>
+   <div id="map-panel" role="tabpanel" aria-labelledby="map-tab" hidden>
+    <p class="note" id="map-note"></p>
+    <div id="map-list"></div>
+   </div>
+  </section>
+ </div>
+</section>
+
+<section id="guide" class="guide">
+ <div class="eyebrow">AT THE SUPPORT DESK</div>
+ <h2>How Copy Check works</h2>
+ <div class="columns">
+  <article><span>01 / GRAMMAR</span><h3>Spot the common slips.</h3><p>Selected checks for agreement, repeated words, homophones, punctuation, comma splices and fragments. When context matters, the flag is marked as a possible issue.</p></article>
+  <article><span>02 / STAFF STYLE</span><h3>One publication voice.</h3><p>The 2027 Yearbook Staff Style Guide governs checks for names and IDs, numbers, dates and times, attribution, capitalization, banned filler and clichés, and sports copy.</p></article>
+  <article><span>03 / LQTQ</span><h3>See the story’s shape.</h3><p>A paragraph map checks the lead → quote → transition → quote sequence, including any extra transition/quote pairs, and whether the story ends on a quote.</p></article>
+ </div>
+
+ <div class="two-col">
+  <div>
+   <h3>Using the checker</h3>
+   <ol>
+    <li>Choose <strong>Story</strong> or <strong>Captions</strong>. In captions mode, also choose a default caption style and how your caption blocks are arranged.</li>
+    <li>Paste one draft into the box. Paste from Google Docs or Word to keep bold lead-ins, or type straight in. Each paragraph is checked separately.</li>
+    <li>Optional: open <strong>Check settings</strong> to include headings or table text, or add verified names and grades.</li>
+    <li>Select <strong>Check my copy</strong>. Read each flagged passage and its rule. <em>Possible issue</em> means context matters.</li>
+    <li>Select <strong>Show in text</strong> to highlight a passage in the box. Make your own edits there or in your original document.</li>
+    <li>After you edit, run the check again for current results and locations.</li>
+   </ol>
+   <h3>Reading a flag</h3>
+   <ul class="plain-list">
+    <li><strong>Category and location</strong>Grammar, Staff style, LQTQ, Caption format or Verify reference, plus the paragraph (and caption) number.</li>
+    <li><strong>The original passage</strong>Exactly what you wrote. Copy Check never suggests replacement wording.</li>
+    <li><strong>The reason and the source</strong>Why it was flagged, and the guide page and section the rule comes from.</li>
+    <li><strong>Quoted passage · verification needed</strong>The flag falls inside quotation marks. Check it against your reporting notes. Don't change a direct quote just to clear a flag.</li>
+   </ul>
+  </div>
+  <div>
+   <h3>What to expect</h3>
+   <ul class="plain-list">
+    <li><strong>Nothing is flagged</strong>The selected patterns found no issue. It isn't a complete grammar or fact check, and it isn't approval to publish.</li>
+    <li><strong>A flag looks wrong</strong>The checker uses patterns, not a full grammar parser, dictionary or AP Stylebook. Use your judgment and the style guide.</li>
+    <li><strong>A paragraph label looks wrong</strong>The LQTQ map infers roles from position and quotation marks. It can't fully read a story's meaning.</li>
+    <li><strong>A highlight is gone</strong>Editing the text after a check clears the highlights. Run the check again.</li>
+    <li><strong>Limits</strong>Check one draft at a time: up to 50,000 characters and 500 paragraphs. At most 500 flags are shown.</li>
+   </ul>
+   <h3>Tips for cleaner results</h3>
+   <ul>
+    <li>Use curly or straight quotation marks consistently, and close every quote.</li>
+    <li>Put each speaker's quote in its own paragraph, with attribution in name-then-verb order (“Maya said”).</li>
+    <li>Add your verified name list so first references, grades and later references can be checked.</li>
+    <li>For captions, keep the bold lead-in when you paste, and set a style for any caption that differs from the default.</li>
+   </ul>
+  </div>
+ </div>
+</section>
+
+<section id="rules" class="guide">
+ <div class="eyebrow">THE RULEBOOK</div>
+ <h2>What gets flagged</h2>
+ <p class="lead-in">Publication guide first, AP for gaps, dictionary for spelling and meaning. Rules marked <span class="pill">possible</span> depend on context.</p>
+ <div class="rule-groups">
+  <details open><summary>Grammar</summary><div class="rule-list" data-category="grammar"></div>
+   <ul class="rule-extra">
+    <li><strong>Possible comma splice</strong>Two independent clauses may be joined only by a comma.</li>
+    <li><strong>Possible sentence fragment</strong>A paragraph may lack an independent clause. Intentional journalistic fragments need context.</li>
+    <li><strong>Possible missing end punctuation</strong>A paragraph has no sentence-ending punctuation.</li>
+    <li><strong>Quotation-mark problems</strong>Unclosed or mismatched quotation marks, stray closing marks, commas outside the closing quotation mark, and missing punctuation before a closing quote.</li>
+   </ul>
+  </details>
+  <details><summary>Staff style</summary><div class="rule-list" data-category="house"></div>
+   <ul class="rule-extra">
+    <li><strong>Numbers</strong>Small counts written as figures, numbers at the start of a sentence, and scores not in winner-first order.</li>
+    <li><strong>Dates</strong>Abbreviated months used without a day, and lowercase weekday names.</li>
+    <li><strong>Openings</strong>Story openings that match a pattern the guide prohibits.</li>
+    <li><strong>Attribution</strong>Verb-before-name order (“said Maya”), quotes with no attribution, attribution that comes several sentences into a quote, and more than one speaker in a paragraph.</li>
+    <li><strong>Names and IDs</strong>With verified name context: student and adult first references, caption IDs and grades, surname-only later references, and repeated full names.</li>
+    <li><strong>Team levels</strong>An abbreviated team level (such as JV) with no earlier full reference.</li>
+   </ul>
+  </details>
+  <details><summary>Verify reference</summary><div class="rule-list" data-category="verify"></div></details>
+  <details><summary>LQTQ structure (story mode)</summary>
+   <ul class="rule-extra">
+    <li><strong>Possible missing lead</strong>The first paragraph was detected as a quote rather than a lead.</li>
+    <li><strong>Possible LQTQ order mismatch</strong>The paragraph after the lead isn't a quote.</li>
+    <li><strong>Possible missing LQTQ block</strong>Back-to-back paragraphs have the same role instead of alternating transition and quote.</li>
+    <li><strong>Incomplete detected LQTQ sequence</strong>Fewer than two quote paragraphs were found.</li>
+    <li><strong>Possible missing quote ending</strong>The last paragraph isn't a quote.</li>
+   </ul>
+  </details>
+ </div>
+</section>
+
+<section id="captions" class="guide">
+ <div class="eyebrow">CAPTION GUIDE</div>
+ <h2>Caption styles</h2>
+ <p class="lead-in">In captions mode, each caption block is checked on its own and never as a story. <strong>A</strong>: action lead-in (2–4 words, bold, no period) · <strong>B</strong>: basic photo information · <strong>C</strong>: complementary information · <strong>D</strong>: direct quote.</p>
+ <div class="table-wrap"><table>
+  <thead><tr><th>Style</th><th>What's checked</th></tr></thead>
+  <tbody>
+   <tr><td>Standard · ABCD</td><td>Action lead-in, basic photo information, complementary information and a direct quote</td></tr>
+   <tr><td>ABC</td><td>A, B and C. No missing-D flag.</td></tr>
+   <tr><td>BC</td><td>B and C. No missing-A or missing-D flag.</td></tr>
+   <tr><td>ACD</td><td>A, C and D. No missing-B flag.</td></tr>
+   <tr><td>Summary · AB</td><td>A and B. No missing-C or missing-D flag.</td></tr>
+   <tr><td>Group caption</td><td>At most four photos, with quotes in at least half of the labeled photo entries</td></tr>
+   <tr><td>Photo ident</td><td>A full name with the grade in parentheses. No sentence or quote needed.</td></tr>
+   <tr><td>Group ident</td><td>Row labels and full names. No sentence or quote needed.</td></tr>
+   <tr><td>Quote caption</td><td>D (two quoted sentences), with a student name/grade ID or a verified adult title/name ID in the attribution</td></tr>
+  </tbody>
+ </table></div>
+ <div class="two-col">
+  <div>
+   <h3>Checking a page of captions</h3>
+   <ol>
+    <li>Choose <strong>Captions</strong> and set the default caption style.</li>
+    <li>Choose the block arrangement. Use <strong>Each paragraph is one caption</strong> for single-paragraph captions. Use <strong>Blank line separates captions</strong> for multi-paragraph captions, group captions and row-based group idents.</li>
+    <li>Run the check, then open <strong>Caption formats</strong>. Set a different expected style for any caption that needs one. Results refresh straight away.</li>
+    <li>For a group caption, enter the photo count if you know it. Labels such as “Top left:” and “Bottom right:” let the checker count quotes for each photo.</li>
+   </ol>
+   <p class="small">Per-caption choices follow caption order. Reset them after you add, delete or reorder captions.</p>
+  </div>
+  <div>
+   <h3>Caption rules worth knowing</h3>
+   <ul>
+    <li>Caption IDs use the full name and the grade in parentheses: <code>Maya Chen (11)</code>. Story-style grade words (“junior Maya Chen”) are flagged in captions, and the parenthesized ID is flagged in story copy.</li>
+    <li>Grades are checked for accuracy only against your verified name context. The same caption ID can appear again in a separate caption block.</li>
+    <li>“Pictured,” “shown above” and “left to right” are prohibited, and so are questions in staff-written caption text.</li>
+    <li>B and C tense detection recognizes common verb patterns only.</li>
+    <li>The checker can't see the photo. It can't confirm that B matches the action, that C adds unseen information, or that the person quoted is in the picture. Page-color matching isn't checked.</li>
+   </ul>
+  </div>
+ </div>
+</section>
+
+<section class="callout">
+ <h2>Your draft stays as written.</h2>
+ <p>Copy Check offers error flags only. It doesn't generate replacement wording or rewrite copy. All checking runs on this page in your browser. Your text isn't uploaded, logged, stored or sent to an AI service. <a href="/privacy.html">Read the privacy policy ↗</a></p>
+</section>
+
+<section class="guide sources">
+ <h3>Sources</h3>
+ <ul>
+  <li>2027 Yearbook Staff Style Guide, pp. 1–4, and Captions – Handout, pp. 1–3 (provided by the adviser).</li>
+  <li><a href="https://owl.purdue.edu/owl/general_writing/the_writing_process/proofreading/proofreading_for_errors.html" target="_blank" rel="noopener">Purdue OWL · Proofreading for Errors ↗</a></li>
+  <li><a href="https://jea.org/wp-content/uploads/news-writing/handout-3.2.1-lqtq-handout.pdf" target="_blank" rel="noopener">JEA · LQTQ handout ↗</a></li>
+ </ul>
+</section>
+</main>
+
+<footer>
+ <span>KHS PRESS / COPY CHECK · ONE STAFF. ONE VOICE. YOUR EDITS.</span>
+ <div class="footer-links"><a href="https://khspress.com/">KHS Press ↗</a><a href="mailto:fitz.khspress@gmail.com">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div>
+</footer>
+</div>
+<script src="/engine.js?v=1"></script>
+<script src="/app.js?v=1"></script>
+</body>
+</html>
